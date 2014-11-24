@@ -1,0 +1,33 @@
+// AddInDemo.idl : IDL source for AddInDemo
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (AddInDemo.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+//[
+//	object,
+//	uuid(FBC988E8-2024-4D60-838C-EDD98181A0BA),
+//	dual,
+//	nonextensible,
+//	pointer_default(unique)
+//]
+//interface IMyAddIn : IDispatch{
+//};
+[
+	uuid(A43285C8-B0B7-4DB1-BABE-E883E9968AA1),
+	version(1.0)	
+]
+library AddInDemoLib
+{
+	importlib("stdole2.tlb");
+	//[
+	//	uuid(27CD07FE-C481-4EC6-BA79-7032E1FC18BE)		
+	//]
+	//coclass MyAddIn
+	//{
+	//	[default] interface IMyAddIn;
+	//};
+};
