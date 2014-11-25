@@ -41,7 +41,7 @@ void CEdgeBarDialog::OnSize(UINT nType, int cx, int cy)
 	CDialogEx::OnSize(nType, cx, cy);
 
 	RECT rect;
-	this->GetClientRect(&rect);
+	GetClientRect(&rect);
 
 	// Resize CListCtrl.
 	if (m_listView.m_hWnd != NULL)

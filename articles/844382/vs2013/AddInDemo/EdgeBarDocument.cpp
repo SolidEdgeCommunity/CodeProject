@@ -16,8 +16,6 @@ CEdgeBarDocument::~CEdgeBarDocument()
 
 HRESULT CEdgeBarDocument::CreateEdgeBarPage(ISolidEdgeBarEx* pEdgeBarEx, SolidEdgeDocument* pDocument)
 {
-	HWND hWndEdgeBarPage = 0;
-	//CWnd* hWndEdgeBarPage = NULL;
 	m_pDocument = pDocument;
 
 	// Build path to .dll that contains the resources.
@@ -26,26 +24,24 @@ HRESULT CEdgeBarDocument::CreateEdgeBarPage(ISolidEdgeBarEx* pEdgeBarEx, SolidEd
 	GetModuleFileName(hInstance, ResourceFilename, sizeof(ResourceFilename));
 
 	CString strTooltip;
-	strTooltip = L"";
+	strTooltip = L"AddInDemo";
 	_bstr_t bstrTooltip = strTooltip;
-
-	hWndEdgeBarPage = (HWND)pEdgeBarEx->AddPageEx(pDocument, ResourceFilename, IDB_EDGEBAR, bstrTooltip, 2);
+	
+	// Create a new EdgeBar page.
+	HWND hWndEdgeBarPage = (HWND)pEdgeBarEx->AddPageEx(pDocument, ResourceFilename, IDB_EDGEBAR, bstrTooltip, 2);
 
 	if (hWndEdgeBarPage)
 	{
-		// Get RECT of newly created EdgeBar page.
-		RECT rect;
-		::GetWindowRect(hWndEdgeBarPage, &rect);
+		// Attach a CWnd local variable to the new EdgeBar page.
+		BOOL bAttached = m_hWndEdgeBarPage.Attach(hWndEdgeBarPage);
 
-		// Create a new container window and make it a child of the newly created EdgeBar page.
-		m_pEdgeBarPageContainer = new CEdgeBarPageContainer();
-		m_pEdgeBarPageContainer->CreateEx(0, _T("STATIC"), NULL, WS_VISIBLE | WS_CHILD, 0, 0, rect.right - rect.left, rect.bottom - rect.top, hWndEdgeBarPage, NULL, NULL);
-
-		// Create a new dialog and make it a child of the new container window.
-		m_pDialog = new CEdgeBarDialog();
-		m_pDialog->Create(IDD_EDGEBARDIALOG, m_pEdgeBarPageContainer);
-		m_pDialog->MoveWindow(0, 0, rect.right - rect.left, rect.bottom - rect.top);
-		m_pDialog->ShowWindow(SW_SHOW);
+		if (bAttached)
+		{
+			// Create a new dialog and make it a child of the new EdgeBar page.
+			m_pDialog = new CEdgeBarDialog();
+			m_pDialog->Create(IDD_EDGEBARDIALOG, &m_hWndEdgeBarPage);
+			m_pDialog->ShowWindow(SW_SHOW);
+		}
 	}
 
 	return S_OK;
@@ -54,15 +50,16 @@ HRESULT CEdgeBarDocument::CreateEdgeBarPage(ISolidEdgeBarEx* pEdgeBarEx, SolidEd
 HRESULT CEdgeBarDocument::DeleteEdgeBarPage(ISolidEdgeBarEx* pEdgeBarEx, SolidEdgeDocument* pDocument)
 {
 	HRESULT hr = S_OK;
-	HWND hWndEdgeBarPage = ::GetParent(m_pEdgeBarPageContainer->m_hWnd);
+	
+	// Detach the CWnd and obtain the HWND.
+	HWND hWndEdgeBarPage = m_hWndEdgeBarPage.Detach();
 
+	// Remove the EdgeBar page.
 	hr = pEdgeBarEx->RemovePage(pDocument, (LONG)hWndEdgeBarPage, 0);
 
+	// Cleanup dialog.
 	delete m_pDialog;
 	m_pDialog = NULL;
-
-	delete m_pEdgeBarPageContainer;
-	m_pEdgeBarPageContainer = NULL;
 
 	return S_OK;
 }

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "resource.h"
-#include "EdgeBarPageContainer.h"
+//#include "EdgeBarPageContainer.h"
 #include "EdgeBarDialog.h"
 
 // {703AADD7-4B5A-41E1-AD20-122FB3588C50}
@@ -13,7 +13,7 @@ class CEdgeBarDocument :
 {
 protected:
 	SolidEdgeDocumentPtr m_pDocument;
-	CEdgeBarPageContainer* m_pEdgeBarPageContainer;
+	CWnd m_hWndEdgeBarPage;
 	CEdgeBarDialog* m_pDialog;
 
 public:

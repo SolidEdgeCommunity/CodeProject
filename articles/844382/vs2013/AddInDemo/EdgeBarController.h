@@ -12,6 +12,7 @@ DEFINE_GUID(CLSID_XAddInEdgeBarEvents, 0x52bb414e, 0xe570, 0x40f0, 0x81, 0x48, 0
 // Define a mapping from a Solid Edge document dispatch pointer to my add-in document.
 typedef CTypedPtrMap<CMapPtrToPtr, SolidEdgeDocument*, CComObject<CEdgeBarDocument>*> CMapDocumentToEdgeBarPage;
 
+// Local COM class that handles adding\removing EdgeBar pages.
 class CEdgeBarController :
 	public CComObjectRoot,
 	public CComCoClass<CEdgeBarController, &CLSID_EdgeBarController>
@@ -34,6 +35,7 @@ protected:
 	HRESULT RemoveEdgeBarPage(SolidEdgeDocument* pDocument);
 
 protected:
+	// Nested COM class that handles ISEAddInEdgeBarEvents.
 	class XAddInEdgeBarEvents : public XEventHandler < ISEAddInEdgeBarEvents,
 		&__uuidof(ISEAddInEdgeBarEvents),
 		&LIBID_AddInDemoLib,

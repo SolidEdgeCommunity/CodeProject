@@ -55,6 +55,7 @@ HRESULT CEdgeBarController::AddEdgeBarPage(SolidEdgeDocument* pDocument)
 	CEdgeBarDocumentObj* pEdgeBarDocument = NULL;
 	ISolidEdgeBarExPtr pEdgeBarEx = NULL;
 	
+	// Check our map to see if we've already created an EdgeBar page for the document.
 	BOOL bFound = m_pMap.Lookup(pDocument, pEdgeBarDocument);
 
 	if (bFound == FALSE)
@@ -62,11 +63,20 @@ HRESULT CEdgeBarController::AddEdgeBarPage(SolidEdgeDocument* pDocument)
 		// Get a pointer to the ISolidEdgeBarEx interface.
 		pEdgeBarEx = m_pAddInEx;
 
+		// Create an instance of local COM object CEdgeBarDocument.
 		CEdgeBarDocumentObj::CreateInstance(&pEdgeBarDocument);
+
+		// Manually AddRef() it.
 		pEdgeBarDocument->AddRef();
+
+		// EdgeBar page creation logic is contained in the CEdgeBarDocument.
 		hr = pEdgeBarDocument->CreateEdgeBarPage(pEdgeBarEx, pDocument);
 
-		m_pMap.SetAt(pDocument, pEdgeBarDocument);
+		if (SUCCEEDED(hr))
+		{
+			// Add it to our map so we can keep track of which documents we've added EdgeBar pages to.
+			m_pMap.SetAt(pDocument, pEdgeBarDocument);
+		}
 	}
 
 	pEdgeBarEx = NULL;
@@ -80,23 +90,27 @@ HRESULT CEdgeBarController::RemoveEdgeBarPage(SolidEdgeDocument* pDocument)
 	HRESULT hr = S_OK;
 	CEdgeBarDocumentObj* pEdgeBarDocument = NULL;
 	ISolidEdgeBarExPtr pEdgeBarEx = NULL;
-	ULONG count = 0;
 
+	// Check our map to see if we've created an EdgeBar page for the document.
 	BOOL bFound = m_pMap.Lookup(pDocument, pEdgeBarDocument);
 
 	if ((bFound == TRUE) && (pEdgeBarDocument != NULL))
 	{
+		// Remove the entry from the map.
 		m_pMap.RemoveKey(pDocument);
 
 		// Get a pointer to the ISolidEdgeBarEx interface.
 		pEdgeBarEx = m_pAddInEx;
 
-		pEdgeBarDocument->DeleteEdgeBarPage(pEdgeBarEx, pDocument);
-		count = pEdgeBarDocument->Release();
+		// Give the CEdgeBarDocument the opportunity to clean up.
+		hr = pEdgeBarDocument->DeleteEdgeBarPage(pEdgeBarEx, pDocument);
+
+		// This is the final release.
+		pEdgeBarDocument->Release();
 	}
 
 	pEdgeBarEx = NULL;
-	return hr;
+	return S_OK;
 }
 
 HRESULT CEdgeBarController::XAddInEdgeBarEvents::raw_AddPage(LPDISPATCH theDocument)
