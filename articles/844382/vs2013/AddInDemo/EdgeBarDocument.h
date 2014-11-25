@@ -1,7 +1,6 @@
 #pragma once
 
 #include "resource.h"
-//#include "EdgeBarPageContainer.h"
 #include "EdgeBarDialog.h"
 
 // {703AADD7-4B5A-41E1-AD20-122FB3588C50}

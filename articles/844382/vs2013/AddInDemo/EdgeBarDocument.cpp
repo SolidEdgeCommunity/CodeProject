@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "EdgeBarDocument.h"
 #include "resource.h"
-//#include "EdgeBarPage.h"
 
 CEdgeBarDocument::CEdgeBarDocument()
 {
