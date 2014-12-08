@@ -16,10 +16,14 @@ CEdgeBarController::~CEdgeBarController()
 HRESULT CEdgeBarController::SetAddInEx(ISEAddInEx* pAddInEx)
 {
 	HRESULT hr = S_OK;
+	SolidEdgeFramework::ApplicationPtr pApplication = NULL;
+	SolidEdgeFramework::SolidEdgeDocumentPtr pDocument = NULL;
 
 	// If SetAddInEx() has been previously called, disconnect from AddInEdgeBarEvents.
 	if (m_pAddInEx != NULL)
 	{
+		hr = RemoveAllEdgeBarPages();
+
 		if (m_pAddInEdgeBarEventsObj != NULL)
 		{
 			hr = m_pAddInEdgeBarEventsObj->Disconnect(m_pAddInEx->AddInEdgeBarEvents);
@@ -42,7 +46,26 @@ HRESULT CEdgeBarController::SetAddInEx(ISEAddInEx* pAddInEx)
 			hr = m_pAddInEdgeBarEventsObj->Connect(m_pAddInEx->AddInEdgeBarEvents);
 			m_pAddInEdgeBarEventsObj->m_pController = this;
 		}
+
+		pApplication = m_pAddInEx->Application;
+
+		// ActiveDocument property will throw an exception if no document is open.
+		_ATLTRY
+		{
+			pDocument = pApplication->ActiveDocument;
+
+			if (pDocument != NULL)
+			{
+				AddEdgeBarPage(pDocument);
+			}
+		}
+			_ATLCATCHALL()
+		{
+		}
 	}
+
+	pDocument = NULL;
+	pApplication = NULL;
 
 	return S_OK;
 }
@@ -109,6 +132,39 @@ HRESULT CEdgeBarController::RemoveEdgeBarPage(SolidEdgeDocument* pDocument)
 		pEdgeBarDocument->Release();
 	}
 
+	pEdgeBarEx = NULL;
+	return S_OK;
+}
+
+HRESULT CEdgeBarController::RemoveAllEdgeBarPages()
+{
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+
+	HRESULT hr = S_OK;
+	CEdgeBarDocumentObj* pEdgeBarDocument = NULL;
+	ISolidEdgeBarExPtr pEdgeBarEx = NULL;
+	SolidEdgeDocument* pDocument = NULL;
+
+	// Get a pointer to the ISolidEdgeBarEx interface.
+	pEdgeBarEx = m_pAddInEx;
+
+	POSITION position = m_pMap.GetStartPosition();
+	while (position)
+	{
+		m_pMap.GetNextAssoc(position, pDocument, pEdgeBarDocument);
+
+		if (pEdgeBarDocument != NULL)
+		{
+			// Give the CEdgeBarDocument the opportunity to clean up.
+			hr = pEdgeBarDocument->DeleteEdgeBarPage(pEdgeBarEx, pDocument);
+
+			// This is the final release.
+			pEdgeBarDocument->Release();
+		}
+	}
+
+	m_pMap.RemoveAll();
+	
 	pEdgeBarEx = NULL;
 	return S_OK;
 }

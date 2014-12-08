@@ -33,6 +33,7 @@ protected:
 
 	HRESULT AddEdgeBarPage(SolidEdgeDocument* pDocument);
 	HRESULT RemoveEdgeBarPage(SolidEdgeDocument* pDocument);
+	HRESULT RemoveAllEdgeBarPages();
 
 protected:
 	// Nested COM class that handles ISEAddInEdgeBarEvents.
