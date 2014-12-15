@@ -40,7 +40,7 @@
 #include <atlbase.h>
 #include <atlcom.h>
 
-//#include <atlctl.h> // Had to remark this line out due to ambiguous CDialogImpl error.
+//#include <atlctl.h> // Remark this line out due to ambiguous CDialogImpl error.
 #include <afxcontrolbars.h> // Added by Dialog -> Add Class wizard
 
 #pragma region Solid Edge specific

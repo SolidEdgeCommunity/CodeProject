@@ -40,7 +40,10 @@ void CEdgeBarDialog::OnSize(UINT nType, int cx, int cy)
 {
 	CDialogEx::OnSize(nType, cx, cy);
 
+	// TODO: Add your message handler code here
 	RECT rect;
+
+	// Get the dialog rectangle.
 	GetClientRect(&rect);
 
 	// Resize CListCtrl.

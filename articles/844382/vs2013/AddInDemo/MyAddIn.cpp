@@ -10,13 +10,18 @@ STDMETHODIMP CMyAddIn::raw_OnConnection(IDispatch *pAppDispatch, SolidEdgeFramew
 {
 	HRESULT hr = S_OK;
 
+	// Store smart pointer to addin. Note that the smart pointer is QueryInferface()'ing for ISEAddInEx.
 	m_pAddInEx = pAddIn;
 
+	// Create instance of CEdgeBarController.
 	hr = CEdgeBarControllerObj::CreateInstance(&m_pEdgeBarController);
 
 	if (SUCCEEDED(hr))
 	{
+		// Manually AddRef() our local CEdgeBarController COM object.
 		m_pEdgeBarController->AddRef();
+
+		// Pass the ISEAddInEx pointer to the CEdgeBarController.
 		hr = m_pEdgeBarController->SetAddInEx(m_pAddInEx);
 	}
 
@@ -34,8 +39,12 @@ STDMETHODIMP CMyAddIn::raw_OnDisconnection(SolidEdgeFramework::SeDisconnectMode 
 
 	if (m_pEdgeBarController != NULL)
 	{
+		// Disconnect the CEdgeBarController by passing NULL.
 		hr = m_pEdgeBarController->SetAddInEx(NULL);
+
+		// Manually Release() our local CEdgeBarController COM object.
 		m_pEdgeBarController->Release();
+
 		m_pEdgeBarController = NULL;
 	}
 
